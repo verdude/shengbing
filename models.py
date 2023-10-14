@@ -1,33 +1,38 @@
-from argparse import ArgumentParser
+from __future__ import annotations
+from typing import Optional
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+from sqlmodel import Field, Relationship, SQLModel, create_engine
 
-from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, relationship
 
-Base = declarative_base()
-
-
-class Caca(Base):
+class Caca(SQLModel, table=True):
     __tablename__ = "cacas"
-    id = Column(Integer, primary_key=True)
-    description = Column(String, index=True)
-    shengbing_id = Column(Integer, ForeignKey("shengbings.id"))
-    shengbing = relationship("ShengBing", back_populates="cacas")
+    id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    description: str = Field(index=True)
+    shengbing_id: int = Field(default=None, foreign_key="shengbings.id")
+    shengbing: ShengBing = Relationship(
+        back_populates="cacas", sa_relationship_kwargs={"uselist": False}
+    )
 
 
-class ShengBing(Base):
+class ShengBing(SQLModel, table=True):
     __tablename__ = "shengbings"
-    id = Column(Integer, primary_key=True)
-    severity = Column(String, index=True)
-    cacas = relationship("Caca", back_populates="shengbing")
-    erzi = relationship("ErZi", uselist=False, back_populates="shengbing")
+    id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    severity: str = Field(index=True)
+    cacas: list[Caca] = Relationship(back_populates="shengbing")
+    erzi: ErZi = Relationship(
+        back_populates="shengbing", sa_relationship_kwargs={"uselist": False}
+    )
 
 
-class ErZi(Base):
+class ErZi(SQLModel, table=True):
     __tablename__ = "erzis"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, index=True)
-    shengbing_id = Column(Integer, ForeignKey("shengbings.id"))
-    shengbing = relationship("ShengBing", back_populates="erzi", uselist=False)
+    id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    name: str = Field(index=True)
+    shengbing_id: int = Field(default=None, foreign_key="shengbings.id")
+    shengbing: ShengBing = Relationship(
+        back_populates="erzi", sa_relationship_kwargs={"uselist": False}
+    )
 
 
 engine = create_engine("sqlite:///example.db")

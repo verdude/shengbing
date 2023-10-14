@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 
 from models import Caca, ErZi, ShengBing, engine
 
-# Assuming the same SQLAlchemy models and engine setup as before
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -14,12 +13,13 @@ class SAMeta:
     sqlalchemy_session_persistence = "commit"
 
 
-class CacaFactory(SQLAlchemyModelFactory):
+# root account
+class ErZiFactory(SQLAlchemyModelFactory):
     class Meta(SAMeta):
-        model = Caca
+        model = ErZi
 
-    description = Faker("sentence")
-    shengbing = SubFactory("factories.ShengBingFactory")
+    name = Faker("name")
+    shengbing_id = None
 
 
 class ShengBingFactory(SQLAlchemyModelFactory):
@@ -27,17 +27,12 @@ class ShengBingFactory(SQLAlchemyModelFactory):
         model = ShengBing
 
     severity = Faker("word")
+    erzi = SubFactory(ErZiFactory)
 
 
-class ErZiFactory(SQLAlchemyModelFactory):
+class CacaFactory(SQLAlchemyModelFactory):
     class Meta(SAMeta):
-        model = ErZi
+        model = Caca
 
-    name = Faker("name")
+    description = Faker("sentence")
     shengbing = SubFactory(ShengBingFactory)
-
-
-if __name__ == "__main__":
-    import ipdb
-
-    ipdb.set_trace()
