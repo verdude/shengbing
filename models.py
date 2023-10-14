@@ -9,20 +9,18 @@ from sqlmodel import Field, Relationship, SQLModel, create_engine
 
 
 class Base(SQLModel):
-    __exclude_fields__ = None
+    __repr_exclude__ = None
+    __args_memo__ = None
 
-    def __repr_args__(self) -> Sequence[Tuple[Optional[str], Any]]:
-        if self.__exclude_fields__ is None:
-            cls = type(self)
-            rels = inspect(cls).relationships.keys()
-            fks = [fk.parent.name.strip("_id") for fk in cls.__table__.foreign_keys]
-            cls.__exclude_fields__ = [k for k in rels if k not in fks]
-
-        return [
-            (k, v)
-            for k, v in self.__dict__.items()
-            if not k.startswith("_sa_") and k not in self.__exclude_fields__
-        ]
+    def __repr_args__(self) -> list[Tuple[str, Any]]:
+        cls = type(self)
+        if cls.__args_memo__ is None:
+            if cls.__repr_exclude__ is None:
+                rels = inspect(cls).relationships.keys()
+                fks = [fk.parent.name.rstrip("_id") for fk in cls.__table__.foreign_keys]
+                cls.__repr_exclude__ = [k for k in rels if k in fks]
+            cls.__args_memo__ = [(k, v) for k, v in super().__repr_args__() if k not in cls.__repr_exclude__]
+        return cls.__args_memo__
 
 
 class Caca(Base, table=True):
