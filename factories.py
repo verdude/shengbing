@@ -1,3 +1,4 @@
+from __future__ import annotations
 from factory import Faker, SubFactory
 from factory.alchemy import SQLAlchemyModelFactory
 from sqlalchemy.orm import sessionmaker
@@ -19,7 +20,7 @@ class ErZiFactory(SQLAlchemyModelFactory):
         model = ErZi
 
     name = Faker("name")
-    shengbing_id = None
+    shengbing = SubFactory("factories.ShengBingFactory")
 
 
 class ShengBingFactory(SQLAlchemyModelFactory):
@@ -27,7 +28,6 @@ class ShengBingFactory(SQLAlchemyModelFactory):
         model = ShengBing
 
     severity = Faker("word")
-    erzi = SubFactory(ErZiFactory)
 
 
 class CacaFactory(SQLAlchemyModelFactory):
@@ -36,3 +36,8 @@ class CacaFactory(SQLAlchemyModelFactory):
 
     description = Faker("sentence")
     shengbing = SubFactory(ShengBingFactory)
+
+caca = CacaFactory()
+caca.shengbing.erzi = ErZiFactory()
+print(caca.shengbing.erzi.name)
+print(caca.shengbing.erzi)
