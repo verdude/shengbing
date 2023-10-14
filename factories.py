@@ -1,4 +1,3 @@
-from __future__ import annotations
 from factory import Faker, SubFactory
 from factory.alchemy import SQLAlchemyModelFactory
 from sqlalchemy.orm import sessionmaker
@@ -14,20 +13,19 @@ class SAMeta:
     sqlalchemy_session_persistence = "commit"
 
 
-# root account
-class ErZiFactory(SQLAlchemyModelFactory):
-    class Meta(SAMeta):
-        model = ErZi
-
-    name = Faker("name")
-    shengbing = SubFactory("factories.ShengBingFactory")
-
-
 class ShengBingFactory(SQLAlchemyModelFactory):
     class Meta(SAMeta):
         model = ShengBing
 
     severity = Faker("word")
+
+
+class ErZiFactory(SQLAlchemyModelFactory):
+    class Meta(SAMeta):
+        model = ErZi
+
+    name = Faker("name")
+    shengbing = SubFactory(ShengBingFactory)
 
 
 class CacaFactory(SQLAlchemyModelFactory):
@@ -36,6 +34,7 @@ class CacaFactory(SQLAlchemyModelFactory):
 
     description = Faker("sentence")
     shengbing = SubFactory(ShengBingFactory)
+
 
 caca = CacaFactory()
 caca.shengbing.erzi = ErZiFactory()
